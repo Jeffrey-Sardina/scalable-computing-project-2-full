@@ -1,0 +1,21 @@
+scikit-build (needed before opencv-python)
+numpy
+argparse
+opencv-python
+    note: very long hang time
+captcha
+    Depends on Pillow, ewhich needs apt-get to install libjpeg-dev and zlib1g-dev
+tflite
+
+issues:
+    Tensorflow
+        pis are x32, default tensorflow is x64
+        tflite
+            Only can run classification, not training
+            probably better to run on the pi
+
+Project notes and questions we need to be able to answer:
+    Can train locally and classfy on the pi as long as we justify the need.
+    We can upload the model after local training or connect the PC to the pi, as long as we can justify that
+    Must be automated / automatable and scalabe, however
+    How do we deal with disconnection?
