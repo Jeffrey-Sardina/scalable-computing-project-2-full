@@ -1,0 +1,1 @@
+Full project code, including preprocessing, generation, training, and classification. Not all of this code should be put on the pi.
