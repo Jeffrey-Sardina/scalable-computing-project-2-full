@@ -1,0 +1,8 @@
+scikit-build (needed before opencv-python)
+numpy
+argparse
+opencv-python
+    note: very long hang time
+captcha
+    Depends on Pillow, ewhich needs apt-get to install libjpeg-dev and zlib1g-dev
+tflite

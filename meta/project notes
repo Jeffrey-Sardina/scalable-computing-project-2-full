@@ -1,0 +1,6 @@
+Project notes and questions we need to be able to answer:
+    Can train locally and classfy on the pi as long as we justify the need.
+    We can upload the model after local training or connect the PC to the pi, as long as we can justify that
+    Must be automated / automatable and scalabe, however
+    How do we deal with disconnection?
+    How are we sure the tflite model has similar accuracy to the tensorflow model?
