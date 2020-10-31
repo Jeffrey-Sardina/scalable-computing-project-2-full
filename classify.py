@@ -11,12 +11,20 @@ import string
 import random
 import argparse
 import tensorflow as tf
-import tensorflow.keras as keras
 import time
 
 def decode(characters, y):
     y = numpy.argmax(numpy.array(y), axis=2)[:,0]
     return ''.join([characters[x] for x in y])
+
+def preprocess(raw_data):
+    #rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
+    img_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+    image = numpy.array(img_data) / 255.0
+    (c, h, w) = image.shape
+    image = image.reshape([-1, c, h, w])
+    return image
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -49,28 +57,22 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
 
     start = time.time()
-    with tf.device('/cpu:0'): #avg. faster than with tf.device('/device:GPU:0'):
-        with open(args.output, 'w') as output_file:
-            json_file = open(args.model_name+'.json', 'r')
-            loaded_model_json = json_file.read()
-            json_file.close()
-            model = keras.models.model_from_json(loaded_model_json)
-            model.load_weights(args.model_name+'.h5')
-            model.compile(loss='categorical_crossentropy',
-                          optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
-                          metrics=['accuracy'])
 
-            for x in sorted(os.listdir(args.captcha_dir)):
-                # load image and preprocess it
-                raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-                rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
-                image = numpy.array(rgb_data) / 255.0
-                (c, h, w) = image.shape
-                image = image.reshape([-1, c, h, w])
-                prediction = model.predict(image)
-                output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
+    #Load model
+    interpreter = tf.lite.Interpreter(args.model_name+'.tflite')
+    interpreter.allocate_tensors()
 
-                print('Classified ' + x)
+    with open(args.output, 'w') as output_file:
+        for x in os.listdir(args.captcha_dir):
+            # load image and process it
+            raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
+            image = preprocess(raw_data)
+            
+            
+            prediction = model.predict(image)
+            output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
+
+            print('Classified ' + x)
     end = time.time()
     print('Time: ' + str(end - start))
 

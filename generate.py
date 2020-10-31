@@ -105,6 +105,6 @@ if __name__ == '__main__':
 
 
 '''
-python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 150000 --output-dir model/gen/
-python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 150000 --output-dir model/val/
+python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 1500 --output-dir model/gen/
+python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 150 --output-dir model/val/
 '''

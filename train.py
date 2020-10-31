@@ -36,13 +36,14 @@ def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5
 # In this case, we have a folder full of images
 # Elements of a Sequence are *batches* of images, of some size batch_size
 class ImageSequence(keras.utils.Sequence):
-    def __init__(self, directory_name, batch_size, captcha_length, captcha_symbols, captcha_width, captcha_height):
+    def __init__(self, directory_name, batch_size, captcha_length, captcha_symbols, captcha_width, captcha_height, channels):
         self.directory_name = directory_name
         self.batch_size = batch_size
         self.captcha_length = captcha_length
         self.captcha_symbols = captcha_symbols
         self.captcha_width = captcha_width
         self.captcha_height = captcha_height
+        self.channels = channels
 
         file_list = os.listdir(self.directory_name)
         self.files = dict(zip(map(lambda x: x.split('.')[0], file_list), file_list))
@@ -53,7 +54,7 @@ class ImageSequence(keras.utils.Sequence):
         return int(numpy.floor(self.count / self.batch_size))
 
     def __getitem__(self, idx):
-        X = numpy.zeros((self.batch_size, self.captcha_height, self.captcha_width, 3), dtype=numpy.float32)
+        X = numpy.zeros((self.batch_size, self.captcha_height, self.captcha_width, 1), dtype=numpy.float32)
         y = [numpy.zeros((self.batch_size, len(self.captcha_symbols)), dtype=numpy.uint8) for i in range(self.captcha_length)]
 
         for i in range(self.batch_size):
@@ -69,8 +70,9 @@ class ImageSequence(keras.utils.Sequence):
             # We have to scale the input pixel values to the range [0, 1] for
             # Keras so we divide by 255 since the image is 8-bit RGB
             raw_data = cv2.imread(os.path.join(self.directory_name, random_image_file))
-            rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
+            rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
             processed_data = numpy.array(rgb_data) / 255.0
+            processed_data = processed_data.reshape(self.captcha_height, self.captcha_width, self.channels)
             X[i] = processed_data
 
             # We have a little hack here - we save captchas as TEXT_num.png if there is more than one captcha with the text "TEXT"
@@ -151,7 +153,8 @@ def main():
 
     start = time.time()
     with tf.device(args.processor):
-        model = create_model(args.length, len(captcha_symbols), (args.height, args.width, 3))
+        channels = 1
+        model = create_model(args.length, len(captcha_symbols), (args.height, args.width, channels))
 
         if args.input_model is not None:
             model.load_weights(args.input_model)
@@ -162,8 +165,8 @@ def main():
 
         model.summary()
 
-        training_data = ImageSequence(args.train_dataset, args.batch_size, args.length, captcha_symbols, args.width, args.height)
-        validation_data = ImageSequence(args.validate_dataset, args.batch_size, args.length, captcha_symbols, args.width, args.height)
+        training_data = ImageSequence(args.train_dataset, args.batch_size, args.length, captcha_symbols, args.width, args.height, channels)
+        validation_data = ImageSequence(args.validate_dataset, args.batch_size, args.length, captcha_symbols, args.width, args.height, channels)
 
         callbacks = [keras.callbacks.EarlyStopping(patience=3),
                      # keras.callbacks.CSVLogger('log.csv'),
@@ -182,7 +185,8 @@ def main():
         except: #change to general except to always save on a crash
             print('KeyboardInterrupt caught, saving current weights as ' + args.output_model_name+ '_resume.h5')
             model.save_weights(args.output_model_name+'_resume.h5')
-            
+            raise
+
         # Save model in tflite format
         tflite_model = tf.lite.TFLiteConverter.from_keras_model(model).convert()
         with open(args.output_model_name + '.tflite', 'wb') as out:
@@ -195,5 +199,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 100 --output-model-name model/model_1 --train-dataset model/gen/ --validate-dataset model/val/
+python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 10 --output-model-name model/model_1 --train-dataset model/gen/ --validate-dataset model/val/
 '''
