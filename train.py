@@ -167,7 +167,7 @@ def main():
 
         callbacks = [keras.callbacks.EarlyStopping(patience=3),
                      # keras.callbacks.CSVLogger('log.csv'),
-                     keras.callbacks.ModelCheckpoint(args.output_model_name+'.h5', save_best_only=False)]
+                     keras.callbacks.ModelCheckpoint(args.output_model_name + '_checkpoint_' + str(time.time()) + '.h5', save_freq="epoch", save_best_only=False)]
 
         # Save the model architecture to JSON
         with open(args.output_model_name+".json", "w") as json_file:
@@ -179,10 +179,15 @@ def main():
                                 epochs=args.epochs,
                                 callbacks=callbacks,
                                 use_multiprocessing=True)
-        except KeyboardInterrupt:
+        except: #change to general except to always save on a crash
             print('KeyboardInterrupt caught, saving current weights as ' + args.output_model_name+ '_resume.h5')
             model.save_weights(args.output_model_name+'_resume.h5')
             
+        # Save model in tflite format
+        tflite_model = tf.lite.TFLiteConverter.from_keras_model(model).convert()
+        with open(args.output_model_name + '.tflite', 'wb') as out:
+            out.write(tflite_model)
+
     end = time.time()
     print('Time: ' + str(end - start))
 
