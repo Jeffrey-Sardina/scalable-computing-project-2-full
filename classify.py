@@ -93,7 +93,7 @@ def main():
                         idx = i
                 prediction += captcha_symbols[idx]
             prediction.replace(' ', '')
-            output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
+            output_file.write(x + "," + prediction + "\n")
 
     end = time.time()
     print('Time: ' + str(end - start))
