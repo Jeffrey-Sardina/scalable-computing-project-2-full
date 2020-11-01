@@ -110,7 +110,7 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
 
     start = time.time()
-    
+
     imgs = os.listdir(args.captcha_dir)
     pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols])
     img_divs = [imgs[i * len(imgs) // args.processes : (i + 1) * len(imgs) // args.processes] for i in range(args.processes)]
@@ -119,7 +119,8 @@ def main():
         for mapping in result:
             for key in mapping:
                 output_file.write(key + "," + mapping[key] + "\n")
-
+    pool.close()
+    
     end = time.time()
     print('Time: ' + str(end - start))
 
