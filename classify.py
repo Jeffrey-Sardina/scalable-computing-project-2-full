@@ -18,6 +18,7 @@ import argparse
 import tflite_runtime.interpreter as tflite
 from multiprocessing import Pool
 import time
+import sys
 
 args = None
 captcha_symbols = None
@@ -81,27 +82,27 @@ def main():
 
     if args.model_name is None:
         print("Please specify the CNN model to use")
-        exit(1)
+        sys.exit(1)
 
     if args.captcha_dir is None:
         print("Please specify the directory with captchas to break")
-        exit(1)
+        sys.exit(1)
 
     if args.output is None:
         print("Please specify the path to the output file")
-        exit(1)
+        sys.exit(1)
 
     if args.symbols is None:
         print("Please specify the captcha symbols file")
-        exit(1)
+        sys.exit(1)
 
     if args.captcha_len is None:
         print("Please specify the captcha length")
-        exit(1)
+        sys.exit(1)
 
     if args.processes is None:
         print("Please specify the number of processes to use")
-        exit(1)
+        sys.exit(1)
 
     symbols_file = open(args.symbols, 'r')
     captcha_symbols = symbols_file.readline().strip()
@@ -123,6 +124,8 @@ def main():
 
     end = time.time()
     print('Time: ' + str(end - start))
+    sys.exit(0)
+
 
 if __name__ == '__main__':
     main()
