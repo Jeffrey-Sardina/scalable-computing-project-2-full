@@ -24,7 +24,15 @@ captcha_generator = None
 
 def generate(it_rng):
     for i in it_rng:
-        random_str = ''.join([random.choice(captcha_symbols) for j in range(args.length)])
+        #random_str = ''.join([random.choice(captcha_symbols) for j in range(args.length)])
+
+        #Save chars as unicode integers so *, /, etc can be included when writing the files
+        random_str = ''
+        for j in range(args.length):
+            random_str += str(ord(random.choice(captcha_symbols)))
+            if j < args.length - 1:
+                random_str += '-'
+
         image_path = os.path.join(args.output_dir, random_str+'.png')
         if os.path.exists(image_path):
             version = 1

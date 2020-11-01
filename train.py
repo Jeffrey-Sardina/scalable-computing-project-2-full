@@ -77,8 +77,12 @@ class ImageSequence(keras.utils.Sequence):
 
             # We have a little hack here - we save captchas as TEXT_num.png if there is more than one captcha with the text "TEXT"
             # So the real label should have the "_num" stripped out.
+            random_image_label_ints = random_image_label.split('_')[0]
 
-            random_image_label = random_image_label.split('_')[0]
+            # We also undo the serlialization tounicode integers to recover the character
+            random_image_label = ''
+            for uni_int in random_image_label_ints.split('-'):
+                random_image_label += chr(int(uni_int))
 
             for j, ch in enumerate(random_image_label):
                 y[j][i, :] = 0
