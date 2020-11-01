@@ -120,7 +120,7 @@ def main():
             for key in mapping:
                 output_file.write(key + "," + mapping[key] + "\n")
     pool.close()
-    
+
     end = time.time()
     print('Time: ' + str(end - start))
 
@@ -128,5 +128,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python classify.py --model-name model/model_1 --captcha-dir in/temp/ --output out/model_1_output.txt --symbols model/symbols.txt --captcha-len 5 --processes 4
+python classify.py --model-name model/model_2 --captcha-dir in/temp/ --output out/model_2_output.txt --symbols model/symbols.txt --captcha-len 5 --processes 4
 '''

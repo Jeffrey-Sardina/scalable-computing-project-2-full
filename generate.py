@@ -24,21 +24,22 @@ captcha_generator = None
 
 def generate(it_rng):
     for i in it_rng:
-        #random_str = ''.join([random.choice(captcha_symbols) for j in range(args.length)])
-
         #Save chars as unicode integers so *, /, etc can be included when writing the files
         random_str = ''
+        file_name = ''
         for j in range(args.length):
-            random_str += str(ord(random.choice(captcha_symbols)))
+            r = random.choice(captcha_symbols)
+            random_str += r
+            file_name += str(ord(r))
             if j < args.length - 1:
-                random_str += '-'
+                file_name += '-'
 
-        image_path = os.path.join(args.output_dir, random_str+'.png')
+        image_path = os.path.join(args.output_dir, file_name+'.png')
         if os.path.exists(image_path):
             version = 1
-            while os.path.exists(os.path.join(args.output_dir, random_str + '_' + str(version) + '.png')):
+            while os.path.exists(os.path.join(args.output_dir, file_name + '_' + str(version) + '.png')):
                 version += 1
-            image_path = os.path.join(args.output_dir, random_str + '_' + str(version) + '.png')
+            image_path = os.path.join(args.output_dir, file_name + '_' + str(version) + '.png')
 
         image = numpy.array(captcha_generator.generate_image(random_str))
         cv2.imwrite(image_path, image)
@@ -114,7 +115,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 '''
 python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 40000 --output-dir model/gen/ --processes 8

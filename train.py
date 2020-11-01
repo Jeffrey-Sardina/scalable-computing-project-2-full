@@ -189,7 +189,7 @@ def main():
         except: #change to general except to always save on a crash
             print('KeyboardInterrupt caught, saving current weights as ' + args.output_model_name+ '_resume.h5')
             model.save_weights(args.output_model_name+'_resume.h5')
-            raise
+            #raise
 
         # Save model in tflite format
         tflite_model = tf.lite.TFLiteConverter.from_keras_model(model).convert()
@@ -203,5 +203,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 50 --output-model-name model/model_1 --train-dataset model/gen/ --validate-dataset model/val/
+python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 50 --output-model-name model/model_2 --train-dataset model/gen/ --validate-dataset model/val/
 '''
