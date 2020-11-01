@@ -51,6 +51,7 @@ def main():
     parser.add_argument('--count', help='How many captchas to generate', type=int)
     parser.add_argument('--output-dir', help='Where to store the generated captchas', type=str)
     parser.add_argument('--symbols', help='File with the symbols to use in captchas', type=str)
+    parser.add_argument('--processes', help='Number of proceses to use', type=int)
     args = parser.parse_args()
 
     if args.width is None:
@@ -77,6 +78,10 @@ def main():
         print("Please specify the captcha symbols file")
         exit(1)
 
+    if args.processes is None:
+        print("Please specify the number of processes to use")
+        exit(1)
+
     captcha_generator = captcha.image.ImageCaptcha(width=args.width, height=args.height)
 
     symbols_file = open(args.symbols, 'r')
@@ -90,9 +95,8 @@ def main():
     print("Generating captchas with symbol set {" + captcha_symbols + "}")
 
     start = time.time()
-    processes = 8
-    pool = Pool(processes=processes, initializer=init_args, initargs=[args, captcha_symbols, captcha_generator])
-    ranges = [range(i * args.count // processes, (i + 1) * args.count // processes) for i in range(processes)]
+    pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols, captcha_generator])
+    ranges = [range(i * args.count // args.processes, (i + 1) * args.count // args.processes) for i in range(args.processes)]
     for r in ranges:
         pool.apply_async(generate, args=(r,))
     pool.close()
@@ -105,6 +109,6 @@ if __name__ == '__main__':
 
 
 '''
-python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 40000 --output-dir model/gen/
-python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 4000 --output-dir model/val/
+python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 40000 --output-dir model/gen/ --processes 8
+python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 4000 --output-dir model/val/ --processes 8
 '''
