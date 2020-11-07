@@ -2,4 +2,7 @@ ssh sardinaj@macneill.scss.tcd.ie OR ssh sardinaj@turing.scss.tcd.ie
 =>
 ssh sardinaj@rasp-028.berry.scss.tcd.ie
 
-Turing is for postgrads, MacNeill is for undergrads generally.
+OR
+
+ssh -t turing.scss.tcd.ie ssh sardinaj@rasp-028.berry.scss.tcd.ie
+ssh -t macneill.scss.tcd.ie ssh sardinaj@rasp-028.berry.scss.tcd.ie
