@@ -1,3 +1,5 @@
 git clone https://artur-hawkwing@bitbucket.org/jeffrey-siothrun/scalable-computing-project-2-pi.git
-git store ...
+
+(from https://stackoverflow.com/questions/35942754/how-to-save-username-and-password-in-git)
+git config --global credential.helper store
 git pull

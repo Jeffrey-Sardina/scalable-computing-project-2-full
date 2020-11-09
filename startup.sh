@@ -2,7 +2,7 @@
 
 if [$# != 3]
 then
-    echo 'Please provide the following arguments: input folder and output file name'
+    echo 'Please provide the following arguments: input (captcha) folder and output file name'
     exit 1
 fi
 
