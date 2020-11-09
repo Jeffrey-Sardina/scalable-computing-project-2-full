@@ -1,10 +1,13 @@
 #!/bin/bash
 
+if [$# != 3]
+then
+    echo 'Please provide the following arguments: input folder and output file name'
+    exit 1
+fi
+
 echo 'setting up environment'
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_rsa
 source ~/captcha_env/bin/activate
-cd ~/solver/scalable-computing-project-2-pi/
 
 echo 'attempting to check for and apply updates (timeout 60 seconds)'
 git reset --hard
@@ -39,7 +42,7 @@ echo 'attempting to update / install needed packages (timeout 300 seconds)'
 timeout 300 python3 install.py
 
 echo 'Running classification'
-python3 classify.py --model-name model/model_2 --captcha-dir ~/solver/in/ --output ~solver/out/model_2_output.txt --symbols model/symbols.txt --captcha-len 5 --processes 4
+python3 classify.py --model-name model/model_2 --captcha-dir $1 --output $2 --symbols model/symbols.txt --captcha-len 5 --processes 4
 exitstatus=$?
 if [$exitstatus == 0]
 then
