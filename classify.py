@@ -18,10 +18,11 @@ import argparse
 import tflite_runtime.interpreter as tflite
 from multiprocessing import Pool
 import time
-import sys
+import glob
 
 args = None
 captcha_symbols = None
+timestamp = None
 
 def decode(characters, y):
     y = numpy.argmax(numpy.array(y), axis=2)[:,0]
@@ -36,10 +37,11 @@ def preprocess(raw_data):
     image = image.astype('float32') 
     return image
 
-def init_args(local_args, local_captcha_symbols):
-    global args, captcha_symbols
+def init_args(local_args, local_captcha_symbols, start):
+    global args, captcha_symbols, timestamp
     args = local_args
     captcha_symbols = local_captcha_symbols
+    timestamp = start
 
 def classify(img_div):
     interpreter = tflite.Interpreter(args.model_name+'.tflite')
@@ -48,24 +50,29 @@ def classify(img_div):
     output_details = interpreter.get_output_details()
 
     predictions = {}
-    for x in img_div:
-        # load image and process it
-        raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-        image = preprocess(raw_data)
-        interpreter.set_tensor(input_details[0]['index'], image)
-        interpreter.invoke()
-        
-        prediction = ''
-        for i in range(args.captcha_len):
-            output_data = interpreter.get_tensor(output_details[i]['index'])[0]
-            max_val = 0
-            idx = 0
-            for i in range(len(output_data)):
-                if output_data[i] >= max_val:
-                    max_val = output_data[i]
-                    idx = i
-            prediction += captcha_symbols[idx]
-        predictions[x] = prediction.replace(' ', '')
+    uuid = str(random.random()).split('.')[1]
+    with open('running_' + str(timestamp) + '_' + uuid + '.save', 'a') as out:
+        for x in img_div:
+            # load image and process it
+            raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
+            image = preprocess(raw_data)
+            interpreter.set_tensor(input_details[0]['index'], image)
+            interpreter.invoke()
+            
+            prediction = ''
+            for i in range(args.captcha_len):
+                output_data = interpreter.get_tensor(output_details[i]['index'])[0]
+                max_val = 0
+                idx = 0
+                for i in range(len(output_data)):
+                    if output_data[i] >= max_val:
+                        max_val = output_data[i]
+                        idx = i
+                prediction += captcha_symbols[idx]
+            predictions[x] = prediction.replace(' ', '')
+
+            #Save results as we go in case there is a power failure
+            print(x + ',' + predictions[x], file=out)
     return predictions
 
 def main():
@@ -78,31 +85,32 @@ def main():
     parser.add_argument('--symbols', help='File with the symbols to use in captchas', type=str)
     parser.add_argument('--captcha-len', help='Number of symbols (max) per captcha', type=int)
     parser.add_argument('--processes', help='Number of processes to use', type=int)
+    parser.add_argument('--continue-from', help='The timestamp of classified data to continue from', type=str)
     args = parser.parse_args()
 
     if args.model_name is None:
         print("Please specify the CNN model to use")
-        sys.exit(1)
+        exit(1)
 
     if args.captcha_dir is None:
         print("Please specify the directory with captchas to break")
-        sys.exit(1)
+        exit(1)
 
     if args.output is None:
         print("Please specify the path to the output file")
-        sys.exit(1)
+        exit(1)
 
     if args.symbols is None:
         print("Please specify the captcha symbols file")
-        sys.exit(1)
+        exit(1)
 
     if args.captcha_len is None:
         print("Please specify the captcha length")
-        sys.exit(1)
+        exit(1)
 
     if args.processes is None:
         print("Please specify the number of processes to use")
-        sys.exit(1)
+        exit(1)
 
     symbols_file = open(args.symbols, 'r')
     captcha_symbols = symbols_file.readline().strip()
@@ -113,18 +121,41 @@ def main():
     start = time.time()
 
     imgs = os.listdir(args.captcha_dir)
-    pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols])
+    classified = {}
+
+    #If we already have some work done, continue from there
+    if args.continue_from is not None:
+        img_set = set(imgs)
+        classified_img_files = glob.glob('*' + args.continue_from + '*')
+        for file_name in classified_img_files:
+            with open(file_name, 'r') as inp:
+                for line in inp:
+                    name, prediction = line.strip().split(',')
+                    classified[name] = prediction
+        img_set -= classified.keys()
+        imgs = [x for x in img_set]
+
+    #Split up the work and run
+    pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols, start])
     img_divs = [imgs[i * len(imgs) // args.processes : (i + 1) * len(imgs) // args.processes] for i in range(args.processes)]
     result = pool.map(classify, img_divs)
+
+    #Save results
     with open(args.output, 'w') as output_file:
+        #new classifications
         for mapping in result:
             for key in mapping:
                 output_file.write(key + "," + mapping[key] + "\n")
+
+        #Classifications made from before
+        if len(classified) > 0:
+            for key in classified:
+                output_file.write(key + "," + classified[key] + "\n")
+
     pool.close()
 
     end = time.time()
     print('Time: ' + str(end - start))
-    sys.exit(0)
 
 if __name__ == '__main__':
     main()
