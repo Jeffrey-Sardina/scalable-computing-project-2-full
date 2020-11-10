@@ -7,47 +7,44 @@ echo '<recovery id> is the timestsamp of .save files made as the program runs as
 echo '-->in a file a_b_c.save, the timestamp is b'
 echo ''
 
+#Check command-line args
 if [[ "$#" -lt 2 ]]
 then
     echo 'Please provide the following arguments: input (captcha) folder and output file name'
     exit 1
 fi
 
-# echo 'setting up environment'
-# source ~/captcha_env/bin/activate
+#Source venv
+echo 'setting up environment'
+source ~/captcha_env/bin/activate
 
-# echo 'attempting to check for and apply updates (timeout 60 seconds)'
-# git reset --hard
-# timeout 60 git pull
-# chmod u+x startup.sh
-# exitstatus=$?
-# case $exitstatus in
-#     124)
-#         echo $exitstatus 'failed to get updates, continuing with pre-existing code'
-#         ;;
-#     125)
-#         echo $exitstatus 'timeout command failed'
-#         ;;
-#     126)
-#         echo $exitstatus 'git command cannot be invoked'
-#         ;;
-#     127)
-#         echo $exitstatus 'git command not found'
-#         ;;
-#     137)
-#         echo $exitstatus 'git command sent kill signal'
-#         ;;
-#     0)
-#         echo $exitstatus 'all updates pulled successfully'
-#         ;;
-#     *)
-#         echo $exitstatus 'unknown error'
-#         ;;
-# esac
+#Pull or update code and echo results
+echo 'attempting to check for and apply updates (will timeout and continue on bad connection)'
+if [[-d .git]]
+then
+    git reset --hard
+    git pull
+    exitstatus=$?
+else
+    git clone https://artur-hawkwing@bitbucket.org/jeffrey-siothrun/scalable-computing-project-2-pi.git
+    exitstatus=$?
+fi
+chmod u+x startup.sh
 
-# echo 'attempting to update / install needed packages (timeout 300 seconds)'
-# timeout 300 python3 install.py
+case $exitstatus in
+    0)
+        echo $exitstatus 'all updates pulled successfully'
+        ;;
+    *)
+        echo $exitstatus 'failed to pull updates'
+        ;;
+esac
 
+#Install or update packages
+echo 'attempting to update / install needed packages (will timeout and continue on bad connection)'
+python3 install.py
+
+#Classify captchas
 echo 'Running classification'
 case $# in
     2)
@@ -60,6 +57,7 @@ case $# in
         ;;
 esac
 
+#Echo final results
 if [[ $exitstatus -eq 0 ]]
 then
     echo $exitstatus 'classification ended successfully'
