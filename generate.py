@@ -5,7 +5,6 @@ I have modified this code to allow multiprocessing using:
     https://realpython.com/python-gil/
     https://stackoverflow.com/questions/43749801/how-can-global-variables-be-accessed-when-using-multiprocessing-and-pool?rq=1
     https://docs.python.org/3/library/multiprocessing.html
-
 '''
 
 import os
