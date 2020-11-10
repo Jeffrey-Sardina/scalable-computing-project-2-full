@@ -1,7 +1,0 @@
-scikit-build
-numpy
-argparse
-opencv-python
-captcha
-tflite
-https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp38-cp38-linux_armv7l.whl
