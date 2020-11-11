@@ -117,5 +117,5 @@ if __name__ == '__main__':
 
 '''
 python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 200000 --output-dir model/gen/ --processes 8
-python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 20000 --output-dir model/val/ --processes 8
+python generate.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --count 50000 --output-dir model/val/ --processes 8
 '''
