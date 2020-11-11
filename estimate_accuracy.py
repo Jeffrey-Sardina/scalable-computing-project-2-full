@@ -8,7 +8,7 @@ def main():
         for line in inp:
             total += 1
             y, pred = line.strip().split(',')
-            if y.split('.')[0].strip() == y.strip():
+            if y.split('.')[0].strip() == pred.strip():
                 correct += 1
     print('correct', correct)
     print('total', total)
