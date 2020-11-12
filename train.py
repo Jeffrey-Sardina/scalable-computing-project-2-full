@@ -203,5 +203,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 100 --output-model-name model/model_2 --train-dataset model/gen/ --validate-dataset model/val/
+see train.sh
 '''

@@ -4,3 +4,9 @@ Project notes and questions we need to be able to answer:
     Must be automated / automatable and scalabe, however
     How do we deal with disconnection?
     How are we sure the tflite model has similar accuracy to the tensorflow model?
+
+Issues
+    Putting pace in images during gen causes issues
+        Uneven distribution of captcha length
+        Some captchas (of smaller legnth) get more cramped
+        So gonot gen with space in symbol set--change len param to gen program!
