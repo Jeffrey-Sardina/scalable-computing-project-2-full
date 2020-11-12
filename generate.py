@@ -28,18 +28,18 @@ def generate(it_rng):
         file_name = ''
 
         #Select characters randomly
-        symbols_to_use = [r for r in random.choice(captcha_symbols)]
+        for j in range(args.length):
+            random_str += random.choice(captcha_symbols)
 
         #Do not allow only spaces
-        if symbols_to_use.count(' ') == len(symbols_to_use):
+        if random_str.count(' ') == len(random_str):
             r = ' '
             while r == ' ':
                 r = random.choice(captcha_symbols)
-            index = random.randint(0, len(symbols_to_use) - 1)
-            symbols_to_use[index] = r
+            index = random.randint(0, len(random_str) - 1)
+            random_str[index] = r
 
         #Create file name and label
-        random_str = ''.join(x for x in symbols_to_use)
         for j, c in enumerate(random_str):
             file_name += str(ord(c))
             if j < args.length - 1:
