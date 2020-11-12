@@ -79,7 +79,7 @@ class ImageSequence(keras.utils.Sequence):
             # So the real label should have the "_num" stripped out.
             random_image_label_ints = random_image_label.split('_')[0]
 
-            # We also undo the serlialization tounicode integers to recover the character
+            # We also undo the serlialization to unicode integers to recover the character
             random_image_label = ''
             for uni_int in random_image_label_ints.split('-'):
                 random_image_label += chr(int(uni_int))
@@ -203,5 +203,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 50 --output-model-name model/model_2 --train-dataset model/gen/ --validate-dataset model/val/
+python train.py --width 128 --height 64 --length 5 --symbols model/symbols.txt --batch-size 32 --epochs 100 --output-model-name model/model_2 --train-dataset model/gen/ --validate-dataset model/val/
 '''
