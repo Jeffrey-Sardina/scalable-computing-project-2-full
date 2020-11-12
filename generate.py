@@ -32,12 +32,8 @@ def generate(it_rng):
             random_str += random.choice(captcha_symbols)
 
         #Do not allow only spaces
-        if random_str.count(' ') == len(random_str):
-            r = ' '
-            while r == ' ':
-                r = random.choice(captcha_symbols)
-            index = random.randint(0, len(random_str) - 1)
-            random_str[index] = r
+        while random_str.count(' ') == len(random_str):
+            random_str += random.choice(captcha_symbols)
 
         #Create file name and label
         for j, c in enumerate(random_str):
