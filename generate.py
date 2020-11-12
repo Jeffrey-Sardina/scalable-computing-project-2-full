@@ -27,7 +27,7 @@ def generate(it_rng):
         random_str = ''
         file_name = ''
 
-        #Chhose a random length and make symbools
+        #Select characters randomly
         symbols_to_use = [r for r in random.choice(captcha_symbols)]
 
         #Do not allow only spaces
@@ -38,10 +38,10 @@ def generate(it_rng):
             index = random.randint(0, len(symbols_to_use) - 1)
             symbols_to_use[index] = r
 
-        for j in range(args.length):
-            r = random.choice(captcha_symbols)
-            random_str += r
-            file_name += str(ord(r))
+        #Create file name and label
+        random_str = ''.join(x for x in symbols_to_use)
+        for j, c in enumerate(random_str):
+            file_name += str(ord(c))
             if j < args.length - 1:
                 file_name += '-'
 
