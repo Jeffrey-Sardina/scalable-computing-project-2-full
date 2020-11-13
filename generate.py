@@ -26,30 +26,20 @@ def generate(it_rng):
         #Save chars as unicode integers so *, /, etc can be included when writing the files
         random_str = ''
         file_name = ''
-
-        #Select characters randomly
         for j in range(args.length):
-            random_str += random.choice(captcha_symbols)
-
-        #Do not allow only spaces
-        while random_str.count(' ') == len(random_str):
-            random_str = ''
-            for j in range(args.length):
-                random_str += random.choice(captcha_symbols)
-
-        #Create file name and label
-        for j, c in enumerate(random_str):
-            file_name += str(ord(c))
+            r = random.choice(captcha_symbols)
+            random_str += r
+            file_name += str(ord(r))
             if j < args.length - 1:
                 file_name += '-'
 
-        #Create amd save image
         image_path = os.path.join(args.output_dir, file_name+'.png')
         if os.path.exists(image_path):
             version = 1
             while os.path.exists(os.path.join(args.output_dir, file_name + '_' + str(version) + '.png')):
                 version += 1
             image_path = os.path.join(args.output_dir, file_name + '_' + str(version) + '.png')
+
         image = numpy.array(captcha_generator.generate_image(random_str))
         cv2.imwrite(image_path, image)
 
@@ -65,7 +55,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', help='Width of captcha image', type=int)
     parser.add_argument('--height', help='Height of captcha image', type=int)
-    parser.add_argument('--length', help='Max length of captchas in characters', type=int)
+    parser.add_argument('--length', help='Length of captchas in characters', type=int)
     parser.add_argument('--count', help='How many captchas to generate', type=int)
     parser.add_argument('--output-dir', help='Where to store the generated captchas', type=str)
     parser.add_argument('--symbols', help='File with the symbols to use in captchas', type=str)
@@ -126,5 +116,5 @@ if __name__ == '__main__':
     main()
 
 '''
-see generate.sh to run
+see generate.sh
 '''
