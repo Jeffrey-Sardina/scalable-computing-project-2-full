@@ -107,6 +107,10 @@ def main():
 
     #If there are already files in the folder, just add to them (this is used in case of crash and recovery)
     num_to_generate = args.count - len(os.listdir(args.output_dir))
+    if num_to_generate <= 0:
+        print('All captchas have already been generated')
+        print('If you meant to replace them, please run automate.sh with 1 as the first parameter')
+        exit(0)
 
     #Split into multiple processes and run
     pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols, captcha_generator])
