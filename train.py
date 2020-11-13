@@ -16,7 +16,7 @@ import time
 import sys
 
 # Build a Keras model given some parameters
-def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=6, module_size=2): #was 5, 2
+def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5, module_size=2): #was 5, 2
     input_tensor = keras.Input(input_shape)
     x = input_tensor
     for i, module_length in enumerate([module_size] * model_depth):
