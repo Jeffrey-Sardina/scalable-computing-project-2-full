@@ -1,0 +1,1 @@
+python3 estimate_accuracy model/output_6t_output.txt
