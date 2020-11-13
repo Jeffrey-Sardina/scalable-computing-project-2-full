@@ -102,9 +102,15 @@ def main():
 
     print("Generating captchas with symbol set {" + captcha_symbols + "}")
 
+    #Start timing
     start = time.time()
+
+    #If there are already files in the folder, just add to them (this is used in case of crash and recovery)
+    num_to_generate = args.count - len(os.listdir(args.output_dir))
+
+    #Split into multiple processes and run
     pool = Pool(processes=args.processes, initializer=init_args, initargs=[args, captcha_symbols, captcha_generator])
-    ranges = [range(i * args.count // args.processes, (i + 1) * args.count // args.processes) for i in range(args.processes)]
+    ranges = [range(i * num_to_generate // args.processes, (i + 1) * num_to_generate // args.processes) for i in range(args.processes)]
     for r in ranges:
         pool.apply_async(generate, args=(r,))
     pool.close()

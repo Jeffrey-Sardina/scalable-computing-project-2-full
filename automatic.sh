@@ -1,35 +1,47 @@
 #!/bin/bash
 
 #Check cmd args
-if [[ "$#" -lt 1 ]]
+if [[ "$#" -lt 4 ]]
 then
-    echo 'Please provide the following arguments: whether to re-create the training set (0 or 1); (optional) path of saved model to recover from'
+    echo 'Please provide the following arguments:'
+    echo 'whether to re-create the training set (0 or 1);'
+    echo 'number of training images to create;'
+    echo 'number of validation images to create;'
+    echo 'number of final model validation images to create;'
+    echo '(optional) path of saved model to recover from'
     exit 1
 fi
 
 #Re-create training if needed
-if [[ $1 -eq 1 ]]
-then
-    echo $exitstatus 'Deleting existing captchas and generating new ones'
-    rm -r model/est/
-    rm -r model/val/
-    rm -r model/gen/
-    mkdir model/est/
-    mkdir model/val/
-    mkdir model/gen/
-    ./generate.sh
-else
-    echo $exitstatus 'Using existing captchas'
-fi
+case $1 in
+    0)
+        echo 'Using existing captchas'
+        ;;
+    1)
+        echo $exitstatus 'Deleting existing captchas and generating new ones'
+        rm -r model/est/
+        rm -r model/val/
+        rm -r model/gen/
+        mkdir model/est/
+        mkdir model/val/
+        mkdir model/gen/
+        ;;
+    *)
+        echo 'invalid arg $1; expected 0 or 1'
+        exit 1
+esac
+
+#Generate training, validation, and final validation data
+./generate.sh $2 $3 $4
 
 #Create model
 case $# in
-    1)
+    4)
         powershell.exe -File train.ps1
         exitstatus=$?
         ;;
-    2)
-        powershell.exe -File train.ps1 -inputModel $2
+    5)
+        powershell.exe -File train.ps1 -inputModel $5
         exitstatus=$?
         ;;
 esac
