@@ -3,7 +3,7 @@
 #Check cmd args
 if [[ "$#" -lt 1 ]]
 then
-    echo 'Please provide the following arguments: whether to re-create the training set (0 or 1)'
+    echo 'Please provide the following arguments: whether to re-create the training set (0 or 1); (optional) path of saved model to recover from'
     exit 1
 fi
 
@@ -23,7 +23,27 @@ else
 fi
 
 #Create model
-powershell.exe -File train.ps1
+case $# in
+    1)
+        powershell.exe -File train.ps1
+        exitstatus=$?
+        ;;
+    2)
+        powershell.exe -File train.ps1 -inputModel $2
+        exitstatus=$?
+        ;;
+esac
+
+exitstatus=$?
+case $exitstatus in
+    0)
+        echo $exitstatus 'training succeeded'
+        ;;
+    *)
+        echo $exitstatus 'training failed'
+        exit 1
+        ;;
+esac
 
 #Copy model to pi repo
 cp model/model.tflite ../Tionscadal\ 2\ pi/model/model.tflite

@@ -1,1 +1,1 @@
-python3 estimate_accuracy model/output_6t_output.txt
+python3 estimate_accuracy.py out/model_7t_output.txt
