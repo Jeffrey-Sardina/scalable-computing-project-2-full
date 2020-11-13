@@ -161,5 +161,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python classify.py --model-name model/model_2 --captcha-dir in/base/ --output out/model_6t_output.txt --symbols model/symbols.txt --captcha-len 6 --processes 4
+python3 classify.py --model-name model/model --captcha-dir in/base/ --output out/model_8t_output.txt --symbols model/symbols.txt --captcha-len 6 --processes 8
 '''

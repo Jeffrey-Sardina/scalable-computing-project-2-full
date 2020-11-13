@@ -1,2 +1,3 @@
-Model params,seconds
-model_depth = 6; model_size = 3; learning_rate=1e-4; |gen|=50000; |val|=12500,3404.9902517795563
+model_depth,model_size,learning_rate,|gen|,|val|,seconds
+6, 3, 1e-4, 50000, 12500, 3404.9902517795563
+6, 2, 1e-4, 100000, 50000, 8065.540032625198
