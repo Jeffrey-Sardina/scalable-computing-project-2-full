@@ -16,7 +16,7 @@ import time
 import sys
 
 # Build a Keras model given some parameters
-def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5, module_size=2):
+def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=7, module_size=3): #was 5, 2
     input_tensor = keras.Input(input_shape)
     x = input_tensor
     for i, module_length in enumerate([module_size] * model_depth):
@@ -164,7 +164,7 @@ def main():
             model.load_weights(args.input_model)
 
         model.compile(loss='categorical_crossentropy',
-                      optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
+                      optimizer=keras.optimizers.Adam(1e-4, amsgrad=True),
                       metrics=['accuracy'])
 
         model.summary()
