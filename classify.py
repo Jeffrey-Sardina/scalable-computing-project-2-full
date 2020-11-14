@@ -43,7 +43,7 @@ def preprocess(raw_data):
     binary_img = (bw_img == 0)
 
     #Detect countours
-    countour_image = np.zeros(bw_img.shape)
+    countour_image = numpy.zeros(bw_img.shape)
     contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
@@ -57,7 +57,11 @@ def preprocess(raw_data):
     intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
     total_mask = countour_mask | intensity_mask
     final_img = binary_img & total_mask
-    return numpy.where(final_img, [0], [255]).astype('float32')
+    image = numpy.where(final_img, [0], [255]).astype('float32')
+    (c, h) = image.shape
+    channels = 1
+    image = image.reshape([-1, c, h, channels])
+    return image
 
 def init_args(local_args, local_captcha_symbols, start):
     global args, captcha_symbols, timestamp

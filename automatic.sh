@@ -62,7 +62,7 @@ cp model/model.tflite ../Tionscadal\ 2\ pi/model/model.tflite
 
 #Push to git
 cd ../Tionscadal\ 2\ pi/
-$ eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)"
 git add *
 git commit -m "new model"
 git push

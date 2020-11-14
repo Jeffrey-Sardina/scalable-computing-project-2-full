@@ -99,7 +99,7 @@ def preprocess(raw_img):
     binary_img = (bw_img == 0)
 
     #Detect countours
-    countour_image = np.zeros(bw_img.shape)
+    countour_image = numpy.zeros(bw_img.shape)
     contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
@@ -214,7 +214,7 @@ def main():
         except: #change to general except to always save on a crash
             print('KeyboardInterrupt caught, saving current weights as ' + args.output_model_name+ '_resume.h5')
             model.save_weights(args.output_model_name+'_resume.h5')
-            #raise
+            raise
 
         # Save model in tflite format
         tflite_model = tf.lite.TFLiteConverter.from_keras_model(model).convert()
