@@ -70,7 +70,10 @@ class ImageSequence(keras.utils.Sequence):
             # We have to scale the input pixel values to the range [0, 1] for
             # Keras so we divide by 255 since the image is 8-bit RGB
             raw_data = cv2.imread(os.path.join(self.directory_name, random_image_file))
-            rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+            #rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+            #rgb_data = cv2.threshold(rgb_data, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            rgb_data = preprocess(raw_data)
+
             processed_data = numpy.array(rgb_data) / 255.0
             processed_data = processed_data.reshape(self.captcha_height, self.captcha_width, self.channels)
             X[i] = processed_data
@@ -89,6 +92,28 @@ class ImageSequence(keras.utils.Sequence):
                 y[j][i, self.captcha_symbols.find(ch)] = 1
 
         return X, y
+
+def preprocess(raw_img):
+    grey_img = cv2.cvtColor(raw_img, cv2.COLOR_BGR2GRAY)
+    bw_img = cv2.threshold(grey_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    binary_img = (bw_img == 0)
+
+    #Detect countours
+    countour_image = np.zeros(bw_img.shape)
+    contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
+        area = cv2.contourArea(contour)
+        if area < 20:
+            #https://stackoverflow.com/questions/19222343/filling-contours-with-opencv-python
+            cv2.fillPoly(countour_image, pts =[contour], color=255)
+
+    #Masking and final image creation
+    countour_mask = (countour_image == 0)
+    intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
+    total_mask = countour_mask | intensity_mask
+    final_img = binary_img & total_mask
+    return numpy.where(final_img, [0], [255]).astype('float32') 
 
 def main():
     parser = argparse.ArgumentParser()

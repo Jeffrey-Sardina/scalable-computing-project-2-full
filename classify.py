@@ -29,13 +29,35 @@ def decode(characters, y):
     return ''.join([characters[x] for x in y])
 
 def preprocess(raw_data):
-    img_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+    '''img_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+    img_data = cv2.threshold(img_data, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     image = numpy.array(img_data) / 255.0
     (c, h) = image.shape
     channels = 1
     image = image.reshape([-1, c, h, channels])
     image = image.astype('float32') 
-    return image
+    return image'''
+
+    grey_img = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+    bw_img = cv2.threshold(grey_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    binary_img = (bw_img == 0)
+
+    #Detect countours
+    countour_image = np.zeros(bw_img.shape)
+    contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
+        area = cv2.contourArea(contour)
+        if area < 20:
+            #https://stackoverflow.com/questions/19222343/filling-contours-with-opencv-python
+            cv2.fillPoly(countour_image, pts =[contour], color=255)
+
+    #Masking and final image creation
+    countour_mask = (countour_image == 0)
+    intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
+    total_mask = countour_mask | intensity_mask
+    final_img = binary_img & total_mask
+    return numpy.where(final_img, [0], [255]).astype('float32')
 
 def init_args(local_args, local_captcha_symbols, start):
     global args, captcha_symbols, timestamp
@@ -161,5 +183,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python3 classify.py --model-name model/model --captcha-dir in/base/ --output out/model_8t_output.txt --symbols model/symbols.txt --captcha-len 6 --processes 8
+python classify.py --model-name model/model_2 --captcha-dir in/temp/ --output out/model_2_output.txt --symbols model/symbols.txt --captcha-len 5 --processes 4
 '''
