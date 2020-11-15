@@ -1,13 +1,14 @@
 #!/bin/bash
 
 #Check cmd args
-if [[ "$#" -lt 4 ]]
+if [[ "$#" -lt 5 ]]
 then
     echo 'Please provide the following arguments:'
     echo 'whether to re-create the training set (0 or 1);'
     echo 'number of training images to create;'
     echo 'number of validation images to create;'
     echo 'number of final model validation images to create;'
+    echo 'percent of images that should be monochar;'
     echo '(optional) path of saved model to recover from'
     exit 1
 fi
@@ -32,15 +33,15 @@ case $1 in
 esac
 
 #Generate training, validation, and final validation data
-./generate.sh $2 $3 $4
+./generate.sh $2 $3 $4 $5
 
 #Create model
 case $# in
-    4)
+    5)
         powershell.exe -File train.ps1
         exitstatus=$?
         ;;
-    5)
+    6)
         powershell.exe -File train.ps1 -inputModel $5
         exitstatus=$?
         ;;

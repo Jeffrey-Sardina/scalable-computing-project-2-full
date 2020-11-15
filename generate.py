@@ -26,12 +26,26 @@ def generate(it_rng):
         #Save chars as unicode integers so *, /, etc can be included when writing the files
         random_str = ''
         file_name = ''
-        for j in range(args.length):
-            r = random.choice(captcha_symbols)
-            random_str += r
-            file_name += str(ord(r))
-            if j < args.length - 1:
-                file_name += '-'
+
+        if args.mono_char == 1:
+            r =  random.choice(captcha_symbols)
+            while r == ' ':
+                r = random.choice(captcha_symbols)
+            for j in range(args.length):
+                next_char = r
+                if random.randint(0, 1) == 1:
+                    next_char = ' '
+                random_str += next_char
+                file_name += str(ord(next_char))
+                if j < args.length - 1:
+                    file_name += '-'
+        else:
+            for j in range(args.length):
+                r = random.choice(captcha_symbols)
+                random_str += r
+                file_name += str(ord(r))
+                if j < args.length - 1:
+                    file_name += '-'
 
         image_path = os.path.join(args.output_dir, file_name+'.png')
         if os.path.exists(image_path):
@@ -60,6 +74,7 @@ def main():
     parser.add_argument('--output-dir', help='Where to store the generated captchas', type=str)
     parser.add_argument('--symbols', help='File with the symbols to use in captchas', type=str)
     parser.add_argument('--processes', help='Number of proceses to use', type=int)
+    parser.add_argument('--mono-char', help='Whether to make captchas with only repeats of one character in the set and spaces', type=int)
     args = parser.parse_args()
 
     if args.width is None:

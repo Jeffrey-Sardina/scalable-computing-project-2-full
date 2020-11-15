@@ -13,8 +13,8 @@ def main():
     with open(file_name, 'r') as inp:
         for line in inp:
             total += 1
-            y, pred = line.strip().split(',')
-            y = get_label(y.split('.')[0].strip())
+            y, pred = line.strip().split(',', 1)
+            y = get_label(y.split('.')[0].strip()).replace(' ', '')
             if y == pred.strip():
                 correct += 1
     print('correct', correct)
