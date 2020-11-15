@@ -57,10 +57,12 @@ def preprocess(raw_data):
     intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
     total_mask = countour_mask | intensity_mask
     final_img = binary_img & total_mask
-    image = numpy.where(final_img, [0], [255]).astype('float32')
+
+    image = numpy.where(final_img, [0], [1]).astype('float32')
     (c, h) = image.shape
     channels = 1
     image = image.reshape([-1, c, h, channels])
+
     return image
 
 def init_args(local_args, local_captcha_symbols, start):

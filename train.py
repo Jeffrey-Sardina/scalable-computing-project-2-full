@@ -16,7 +16,7 @@ import time
 import sys
 
 # Build a Keras model given some parameters
-def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=6, module_size=3): #was 5, 2
+def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5, module_size=2): #was 5, 2
     input_tensor = keras.Input(input_shape)
     x = input_tensor
     for i, module_length in enumerate([module_size] * model_depth):
@@ -70,8 +70,6 @@ class ImageSequence(keras.utils.Sequence):
             # We have to scale the input pixel values to the range [0, 1] for
             # Keras so we divide by 255 since the image is 8-bit RGB
             raw_data = cv2.imread(os.path.join(self.directory_name, random_image_file))
-            #rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
-            #rgb_data = cv2.threshold(rgb_data, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
             rgb_data = preprocess(raw_data)
 
             processed_data = numpy.array(rgb_data) / 255.0
@@ -186,6 +184,7 @@ def main():
         model = create_model(args.length, len(captcha_symbols), (args.height, args.width, channels))
 
         if args.input_model is not None:
+            print('recovering from model ' + args.input_model)
             model.load_weights(args.input_model)
 
         model.compile(loss='categorical_crossentropy',
