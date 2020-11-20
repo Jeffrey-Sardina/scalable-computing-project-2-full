@@ -29,41 +29,27 @@ def decode(characters, y):
     return ''.join([characters[x] for x in y])
 
 def preprocess(raw_data):
-    '''img_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
-    img_data = cv2.threshold(img_data, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    image = numpy.array(img_data) / 255.0
-    (c, h) = image.shape
+    img = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
+
+    '''
+    Rectnagular seems to be best here.
+        4,1 leaves a bit too kuch, and anthing above 5,1 starts to eat away at the actual data
+    Square reduces actual data to much and his no greater effect on non-data
+    '''
+    kernel = numpy.ones((5,1), numpy.uint8)
+    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel, iterations = 1)
+
+    '''
+    Setting a constant cuttoff is more simple, but sometimes makes the data diappear
+    '''
+    cuttoff = numpy.mean(img) - numpy.std(img)
+    img[img > cuttoff] = 255
+
+    img = img.astype('float32') / 255
     channels = 1
-    image = image.reshape([-1, c, h, channels])
-    image = image.astype('float32') 
-    return image'''
-
-    grey_img = cv2.cvtColor(raw_data, cv2.COLOR_BGR2GRAY)
-    bw_img = cv2.threshold(grey_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    binary_img = (bw_img == 0)
-
-    #Detect countours
-    countour_image = numpy.zeros(bw_img.shape)
-    contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
-    for contour in contours:
-        #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
-        area = cv2.contourArea(contour)
-        if area < 20:
-            #https://stackoverflow.com/questions/19222343/filling-contours-with-opencv-python
-            cv2.fillPoly(countour_image, pts =[contour], color=255)
-
-    #Masking and final image creation
-    countour_mask = (countour_image == 0)
-    intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
-    total_mask = countour_mask | intensity_mask
-    final_img = binary_img & total_mask
-
-    image = numpy.where(final_img, [0], [1]).astype('float32')
-    (c, h) = image.shape
-    channels = 1
-    image = image.reshape([-1, c, h, channels])
-
-    return image
+    (c, h) = img.shape
+    img = img.reshape([-1, c, h, channels])
+    return img
 
 def init_args(local_args, local_captcha_symbols, start):
     global args, captcha_symbols, timestamp
@@ -189,5 +175,5 @@ if __name__ == '__main__':
     main()
 
 '''
-python classify.py --model-name model/model_2 --captcha-dir in/temp/ --output out/model_2_output.txt --symbols model/symbols.txt --captcha-len 5 --processes 4
+see startup.sh for examples on how to run
 '''

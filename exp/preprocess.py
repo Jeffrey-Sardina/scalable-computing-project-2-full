@@ -1,7 +1,9 @@
 '''
-https://stackoverflow.com/questions/10549245/how-can-i-adjust-contrast-in-opencv-in-c
-https://chrisalbon.com/machine_learning/preprocessing_images/enhance_contrast_of_greyscale_image/
-https://stackoverflow.com/questions/42798659/how-to-remove-small-connected-objects-using-opencv
+References:
+    https://stackoverflow.com/questions/10549245/how-can-i-adjust-contrast-in-opencv-in-c
+    https://chrisalbon.com/machine_learning/preprocessing_images/enhance_contrast_of_greyscale_image/
+    https://stackoverflow.com/questions/42798659/how-to-remove-small-connected-objects-using-opencv
+    https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html
 '''
 
 import cv2
@@ -13,29 +15,17 @@ in_dir = 'in/'
 out_dir = 'out/'
 
 def preprocess(fname, out_folder):
-    raw_img = cv2.imread(os.path.join(in_dir, fname))
-    grey_img = cv2.cvtColor(raw_img, cv2.COLOR_BGR2GRAY)
-    bw_img = cv2.threshold(grey_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    binary_img = (bw_img == 0)
+    img = cv2.imread(os.path.join(in_dir, fname))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    #Detect countours
-    countour_image = np.zeros(bw_img.shape)
-    contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
-    for contour in contours:
-        #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
-        area = cv2.contourArea(contour)
-        if area < 20:
-            #https://stackoverflow.com/questions/19222343/filling-contours-with-opencv-python
-            cv2.fillPoly(countour_image, pts =[contour], color=255)
+    kernel = np.ones((5,1), np.uint8)
+    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel, iterations = 1)
 
-    #Masking and final image creation
-    countour_mask = (countour_image == 0)
-    intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
-    total_mask = countour_mask | intensity_mask
-    final_img = binary_img & total_mask
-    final_img = np.where(final_img, [0], [255]).astype('float32') 
+    cuttoff = np.mean(img) - np.std(img)
+    img[img > cuttoff] = 255
+    img = img.astype('float32')
 
-    cv2.imwrite(os.path.join(out_folder, fname), final_img)
+    cv2.imwrite(os.path.join(out_folder, fname), img)
 
 def preprocess_all(folder, out_folder):
     fnames = [os.path.basename(x) for x in glob.glob(os.path.join(folder, '*'))]

@@ -92,26 +92,22 @@ class ImageSequence(keras.utils.Sequence):
         return X, y
 
 def preprocess(raw_img):
-    grey_img = cv2.cvtColor(raw_img, cv2.COLOR_BGR2GRAY)
-    bw_img = cv2.threshold(grey_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    binary_img = (bw_img == 0)
+    img = cv2.cvtColor(raw_img, cv2.COLOR_BGR2GRAY)
 
-    #Detect countours
-    countour_image = numpy.zeros(bw_img.shape)
-    contours, _ = cv2.findContours(bw_img, cv2.RETR_CCOMP , cv2.CHAIN_APPROX_SIMPLE)
-    for contour in contours:
-        #https://docs.opencv.org/master/dd/d49/tutorial_py_contour_features.html
-        area = cv2.contourArea(contour)
-        if area < 20:
-            #https://stackoverflow.com/questions/19222343/filling-contours-with-opencv-python
-            cv2.fillPoly(countour_image, pts =[contour], color=255)
+    '''
+    Rectnagular seems to be best here.
+        4,1 leaves a bit too kuch, and anthing above 5,1 starts to eat away at the actual data
+    Square reduces actual data to much and his no greater effect on non-data
+    '''
+    kernel = numpy.ones((5,1), numpy.uint8)
+    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel, iterations = 1)
 
-    #Masking and final image creation
-    countour_mask = (countour_image == 0)
-    intensity_mask = (cv2.threshold(grey_img, 100, 255, cv2.THRESH_BINARY)[1] == 0)
-    total_mask = countour_mask | intensity_mask
-    final_img = binary_img & total_mask
-    return numpy.where(final_img, [0], [255]).astype('float32') 
+    '''
+    Setting a constant cuttoff is more simple, but sometimes makes the data diappear
+    '''
+    cuttoff = numpy.mean(img) - numpy.std(img)
+    img[img > cuttoff] = 255
+    return img.astype('float32')
 
 def main():
     parser = argparse.ArgumentParser()
